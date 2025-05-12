@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { Wand2, Bug, Share2, RefreshCw, Trash, Lightbulb } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -17,6 +16,7 @@ import { usePythonHelper } from '@/hooks/usePythonHelper';
 const Index = () => {
   const [code, setCode] = useState<string>('');
   const [prompt, setPrompt] = useState<string>('');
+  const [error, setError] = useState<string>('');
   const [activeTab, setActiveTab] = useState<string>('generate');
   const { isGenerating, isFixing, generateCode, fixCode } = usePythonHelper();
 
@@ -39,12 +39,12 @@ const Index = () => {
       return;
     }
     
-    const fixedCode = await fixCode(code);
+    const fixedCode = await fixCode(code, error);
     if (fixedCode && fixedCode !== code) {
       setCode(fixedCode);
       toast.success("Code fixed successfully!");
     } else if (fixedCode === code) {
-      toast.info("No issues found in your code");
+      toast.info("No changes were made to your code");
     }
   };
 
@@ -54,6 +54,7 @@ const Index = () => {
       setCode('');
     } else {
       setCode('');
+      setError('');
     }
     toast.info("Cleared all content");
   };
@@ -128,6 +129,19 @@ const Index = () => {
               <label className="block text-sm font-medium">
                 Python code to fix:
               </label>
+              
+              <div className="mt-4">
+                <label htmlFor="error" className="block text-sm font-medium mb-1">
+                  Error message (optional):
+                </label>
+                <Textarea
+                  id="error"
+                  value={error}
+                  onChange={(e) => setError(e.target.value)}
+                  placeholder="Paste any error messages here to help fix the code"
+                  className="h-20 text-foreground"
+                />
+              </div>
             </div>
             
             <div className="flex flex-wrap gap-2">
@@ -163,6 +177,7 @@ result = calculate_factorial(5)
 print(result)`
                   ];
                   setCode(examples[Math.floor(Math.random() * examples.length)]);
+                  setError("SyntaxError: invalid syntax");
                 }}
                 variant="outline"
               />
