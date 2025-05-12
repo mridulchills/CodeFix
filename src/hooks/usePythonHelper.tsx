@@ -10,7 +10,8 @@ interface UsePythonHelperResult {
 }
 
 // Backend API URL - this would typically be in an environment variable
-const BACKEND_API_URL = "http://localhost:5000/api";
+// For Lovable hosted environment, we'll need to update this to the deployed backend URL
+const BACKEND_API_URL = "https://your-backend-url.com/api"; // This needs to be updated once you deploy your backend
 
 export function usePythonHelper(): UsePythonHelperResult {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -34,7 +35,7 @@ export function usePythonHelper(): UsePythonHelperResult {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
+        const errorData = await response.json().catch(() => ({}));
         throw new Error(`Backend request failed: ${errorData.error || response.status}`);
       }
 
@@ -74,7 +75,7 @@ export function usePythonHelper(): UsePythonHelperResult {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
+        const errorData = await response.json().catch(() => ({}));
         throw new Error(`Backend request failed: ${errorData.error || response.status}`);
       }
 
