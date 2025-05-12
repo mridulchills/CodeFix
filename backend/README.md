@@ -1,7 +1,7 @@
 
 # Python Code Helper Backend
 
-This is a simple Flask backend that handles API calls to the Gemini API for generating and fixing Python code.
+This is a Node.js/Express backend that handles API calls to the Gemini API for generating and fixing Python code.
 
 ## Setup
 
@@ -12,12 +12,12 @@ This is a simple Flask backend that handles API calls to the Gemini API for gene
 
 2. Install dependencies:
    ```bash
-   pip install -r requirements.txt
+   npm install
    ```
 
 3. Run the server:
    ```bash
-   python app.py
+   npm start
    ```
 
 The server will start on http://localhost:5000
