@@ -3,7 +3,8 @@ import React, { useState } from 'react';
 import { Wand2, Bug, Share2, RefreshCw, Trash, Lightbulb } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/input';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
