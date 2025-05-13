@@ -25,7 +25,8 @@ export function usePythonHelper(): UsePythonHelperResult {
 
     setIsGenerating(true);
     try {
-      const response = await fetch(`${BACKEND_API_URL}/generate`, {
+      // Modified endpoint to use /api/generate
+      const response = await fetch(`${BACKEND_API_URL}/api/generate`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -35,6 +36,7 @@ export function usePythonHelper(): UsePythonHelperResult {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+        console.error("API Error:", response.status, errorData);
         throw new Error(`Backend request failed: ${errorData.error || response.status}`);
       }
 
@@ -65,7 +67,8 @@ export function usePythonHelper(): UsePythonHelperResult {
 
     setIsFixing(true);
     try {
-      const response = await fetch(`${BACKEND_API_URL}/fix`, {
+      // Modified endpoint to use /api/fix
+      const response = await fetch(`${BACKEND_API_URL}/api/fix`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -75,6 +78,7 @@ export function usePythonHelper(): UsePythonHelperResult {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+        console.error("API Error:", response.status, errorData);
         throw new Error(`Backend request failed: ${errorData.error || response.status}`);
       }
 
