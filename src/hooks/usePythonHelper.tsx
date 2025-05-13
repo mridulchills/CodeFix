@@ -25,7 +25,8 @@ export function usePythonHelper(): UsePythonHelperResult {
 
     setIsGenerating(true);
     try {
-      // Modified endpoint to use /api/generate
+      console.log("Sending request to:", `${BACKEND_API_URL}/api/generate`);
+      
       const response = await fetch(`${BACKEND_API_URL}/api/generate`, {
         method: "POST",
         headers: {
@@ -41,6 +42,7 @@ export function usePythonHelper(): UsePythonHelperResult {
       }
 
       const data = await response.json();
+      console.log("API response:", data);
       
       if (data.code) {
         return data.code;
@@ -67,7 +69,8 @@ export function usePythonHelper(): UsePythonHelperResult {
 
     setIsFixing(true);
     try {
-      // Modified endpoint to use /api/fix
+      console.log("Sending request to:", `${BACKEND_API_URL}/api/fix`);
+      
       const response = await fetch(`${BACKEND_API_URL}/api/fix`, {
         method: "POST",
         headers: {
@@ -83,6 +86,7 @@ export function usePythonHelper(): UsePythonHelperResult {
       }
 
       const data = await response.json();
+      console.log("API response:", data);
       
       if (data.code) {
         return data.code;
