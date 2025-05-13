@@ -5,8 +5,8 @@ import { toast } from '@/components/ui/sonner';
 interface UsePythonHelperResult {
   isGenerating: boolean;
   isFixing: boolean;
-  generateCode: (prompt: string) => Promise<string>;
-  fixCode: (code: string, error?: string) => Promise<string>;
+  generateCode: (prompt: string) => Promise<{ code: string; output: string }>;
+  fixCode: (code: string, error?: string) => Promise<{ code: string; output: string }>;
 }
 
 // Backend API URL - using the deployed backend URL
@@ -17,10 +17,10 @@ export function usePythonHelper(): UsePythonHelperResult {
   const [isFixing, setIsFixing] = useState(false);
 
   // Call backend to generate code
-  const generateCode = async (prompt: string): Promise<string> => {
+  const generateCode = async (prompt: string): Promise<{ code: string; output: string }> => {
     if (!prompt.trim()) {
       toast.error("Please provide a description of what code to generate");
-      return "";
+      return { code: "", output: "" };
     }
 
     setIsGenerating(true);
@@ -41,30 +41,33 @@ export function usePythonHelper(): UsePythonHelperResult {
         throw new Error(`Backend request failed: ${errorData.error || response.status}`);
       }
 
-      const data = await response.json();
+      const data = await response.json() as { code: string; output: string };
       console.log("API response:", data);
       
       if (data.code) {
-        return data.code;
+        return { 
+          code: data.code, 
+          output: data.output || "" 
+        };
       } else {
         console.error("Unexpected API response format:", data);
         toast.error("Failed to parse API response");
-        return "";
+        return { code: "", output: "" };
       }
     } catch (error) {
       console.error("Code generation error:", error);
       toast.error(`Failed to generate code: ${error instanceof Error ? error.message : String(error)}`);
-      return "";
+      return { code: "", output: "" };
     } finally {
       setIsGenerating(false);
     }
   };
 
   // Call backend to fix code
-  const fixCode = async (code: string, error?: string): Promise<string> => {
+  const fixCode = async (code: string, error?: string): Promise<{ code: string; output: string }> => {
     if (!code.trim()) {
       toast.error("Please provide code to fix");
-      return "";
+      return { code: "", output: "" };
     }
 
     setIsFixing(true);
@@ -85,20 +88,23 @@ export function usePythonHelper(): UsePythonHelperResult {
         throw new Error(`Backend request failed: ${errorData.error || response.status}`);
       }
 
-      const data = await response.json();
+      const data = await response.json() as { code: string; output: string };
       console.log("API response:", data);
       
       if (data.code) {
-        return data.code;
+        return { 
+          code: data.code, 
+          output: data.output || ""  
+        };
       } else {
         console.error("Unexpected API response format:", data);
         toast.error("Failed to parse API response");
-        return code;
+        return { code, output: "" };
       }
     } catch (error) {
       console.error("Code fixing error:", error);
       toast.error(`Failed to fix code: ${error instanceof Error ? error.message : String(error)}`);
-      return code;
+      return { code, output: "" };
     } finally {
       setIsFixing(false);
     }

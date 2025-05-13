@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Wand2, Bug, Share2, RefreshCw, Trash, Lightbulb } from 'lucide-react';
+import { Wand2, Bug, Share2, RefreshCw, Trash, Lightbulb, Terminal } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -15,6 +15,7 @@ import { usePythonHelper } from '@/hooks/usePythonHelper';
 
 const Index = () => {
   const [code, setCode] = useState<string>('');
+  const [output, setOutput] = useState<string>('');
   const [prompt, setPrompt] = useState<string>('');
   const [error, setError] = useState<string>('');
   const [activeTab, setActiveTab] = useState<string>('generate');
@@ -26,9 +27,10 @@ const Index = () => {
       return;
     }
     
-    const generatedCode = await generateCode(prompt);
-    if (generatedCode) {
-      setCode(generatedCode);
+    const result = await generateCode(prompt);
+    if (result.code) {
+      setCode(result.code);
+      setOutput(result.output || '');
       toast.success("Code generated successfully!");
     }
   };
@@ -39,11 +41,13 @@ const Index = () => {
       return;
     }
     
-    const fixedCode = await fixCode(code, error);
-    if (fixedCode && fixedCode !== code) {
-      setCode(fixedCode);
+    const result = await fixCode(code, error);
+    if (result.code && result.code !== code) {
+      setCode(result.code);
+      setOutput(result.output || '');
       toast.success("Code fixed successfully!");
-    } else if (fixedCode === code) {
+    } else if (result.code === code) {
+      setOutput(result.output || '');
       toast.info("No changes were made to your code");
     }
   };
@@ -52,9 +56,11 @@ const Index = () => {
     if (activeTab === 'generate') {
       setPrompt('');
       setCode('');
+      setOutput('');
     } else {
       setCode('');
       setError('');
+      setOutput('');
     }
     toast.info("Cleared all content");
   };
@@ -216,6 +222,20 @@ print(result)`
             />
           </Card>
         </div>
+
+        {/* Output Section */}
+        {output && (
+          <div className="mt-6">
+            <div className="flex items-center mb-2">
+              <Terminal className="h-4 w-4 mr-2" />
+              <h3 className="font-medium">Output:</h3>
+            </div>
+            
+            <Card className="p-4 bg-black text-green-400 font-mono text-sm whitespace-pre-wrap overflow-x-auto">
+              {output}
+            </Card>
+          </div>
+        )}
       </main>
       
       <Footer />
