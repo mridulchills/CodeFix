@@ -9,9 +9,8 @@ interface UsePythonHelperResult {
   fixCode: (code: string, error?: string) => Promise<string>;
 }
 
-// Backend API URL - this would typically be in an environment variable
-// For Lovable hosted environment, we'll need to update this to the deployed backend URL
-const BACKEND_API_URL = "https://codefix-backend.onrender.com"; // This needs to be updated once you deploy your backend
+// Backend API URL - using the deployed backend URL
+const BACKEND_API_URL = "https://codefix-backend.onrender.com"; // Updated to the provided backend URL
 
 export function usePythonHelper(): UsePythonHelperResult {
   const [isGenerating, setIsGenerating] = useState(false);
