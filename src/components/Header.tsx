@@ -8,7 +8,7 @@ const Header = () => {
       <div className="container flex items-center justify-between h-16 px-4">
         <div className="flex items-center gap-2">
           <Code className="w-6 h-6 text-primary" />
-          <h1 className="text-xl font-bold">PythonHelper</h1>
+          <h1 className="text-xl font-bold">CodeFix</h1>
         </div>
         <nav>
           <ul className="flex items-center gap-4">
