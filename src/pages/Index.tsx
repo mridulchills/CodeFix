@@ -79,7 +79,7 @@ const Index = () => {
       <Header />
       
       <main className="flex-1 container py-8 px-4">
-        <h2 className="text-2xl font-bold mb-6">CodeFix</h2>
+        <h2 className="text-2xl font-bold mb-6">Fix Your Code</h2>
         
         <Tabs defaultValue="generate" onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid grid-cols-2 mb-6">
