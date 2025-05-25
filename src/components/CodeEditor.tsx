@@ -10,6 +10,11 @@ interface CodeEditorProps {
   readOnly?: boolean;
 }
 
+interface Token {
+  type: 'keyword' | 'string' | 'comment' | 'number' | 'function' | 'class' | 'operator' | 'text';
+  value: string;
+}
+
 const CodeEditor = ({ 
   code, 
   onChange, 
@@ -26,29 +31,111 @@ const CodeEditor = ({
     setLines(codeLines);
   }, [code]);
 
-  // Escape HTML characters to prevent interpretation as HTML
-  const escapeHtml = (text: string): string => {
-    return text
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
+  // Tokenize a line of code into syntax elements
+  const tokenizeLine = (line: string): Token[] => {
+    const tokens: Token[] = [];
+    let remaining = line;
+    let position = 0;
+
+    const patterns = [
+      // Comments (must come first to avoid interfering with other patterns)
+      { type: 'comment' as const, regex: /#.*$/ },
+      // Keywords
+      { type: 'keyword' as const, regex: /\b(def|class|import|from|as|return|if|else|elif|for|while|try|except|finally|with|in|is|not|and|or|True|False|None|void|int|bool|using|namespace|std|include|const|auto|template|typename|public|private|protected)\b/ },
+      // Strings (double quotes)
+      { type: 'string' as const, regex: /"([^"\\]|\\.)*"/ },
+      // Strings (single quotes)
+      { type: 'string' as const, regex: /'([^'\\]|\\.)*'/ },
+      // Numbers
+      { type: 'number' as const, regex: /\b\d+(\.\d+)?\b/ },
+      // Function calls
+      { type: 'function' as const, regex: /\b([a-zA-Z_][a-zA-Z0-9_]*)\s*(?=\()/ },
+      // Class names (after class/struct keywords)
+      { type: 'class' as const, regex: /\b(class|struct)\s+([a-zA-Z_][a-zA-Z0-9_]*)/g },
+      // Operators
+      { type: 'operator' as const, regex: /[+\-*/%=<>!&|^~]|<<|>>|<=|>=|==|!=|&&|\|\|| / }
+    ];
+
+    while (remaining.length > 0) {
+      let matched = false;
+      
+      for (const pattern of patterns) {
+        const match = remaining.match(pattern.regex);
+        if (match && match.index === 0) {
+          // Handle special case for class names
+          if (pattern.type === 'class' && match[2]) {
+            // Add the keyword first
+            tokens.push({ type: 'keyword', value: match[1] });
+            // Add whitespace
+            const whitespace = match[0].substring(match[1].length, match[0].length - match[2].length);
+            if (whitespace) {
+              tokens.push({ type: 'text', value: whitespace });
+            }
+            // Add the class name
+            tokens.push({ type: 'class', value: match[2] });
+          } else {
+            tokens.push({ type: pattern.type, value: match[0] });
+          }
+          
+          remaining = remaining.substring(match[0].length);
+          position += match[0].length;
+          matched = true;
+          break;
+        }
+      }
+      
+      if (!matched) {
+        // Add single character as text
+        tokens.push({ type: 'text', value: remaining[0] });
+        remaining = remaining.substring(1);
+        position += 1;
+      }
+    }
+
+    return tokens;
   };
 
-  // Apply syntax highlighting after escaping HTML
-  const highlightSyntax = (line: string) => {
-    // First escape HTML characters
-    let escapedLine = escapeHtml(line);
+  // Get CSS class for token type
+  const getClassForToken = (type: Token['type']): string => {
+    switch (type) {
+      case 'keyword':
+        return 'text-blue-400 font-semibold';
+      case 'string':
+        return 'text-green-400';
+      case 'comment':
+        return 'text-gray-500 italic';
+      case 'number':
+        return 'text-orange-400';
+      case 'function':
+        return 'text-yellow-400';
+      case 'class':
+        return 'text-cyan-400 font-semibold';
+      case 'operator':
+        return 'text-purple-400';
+      default:
+        return 'text-gray-300';
+    }
+  };
+
+  // Render a line with syntax highlighting
+  const renderLine = (line: string, lineIndex: number) => {
+    if (!line) {
+      return <span>&nbsp;</span>;
+    }
     
-    // Then apply syntax highlighting with proper CSS classes
-    return escapedLine
-      .replace(/\b(def|class|import|from|as|return|if|else|elif|for|while|try|except|finally|with|in|is|not|and|or|True|False|None|void|int|bool|using|namespace|std|include)\b/g, '<span class="text-blue-400 font-semibold">$1</span>')
-      .replace(/(#.*$)/g, '<span class="text-gray-500 italic">$1</span>')
-      .replace(/(&quot;.*?&quot;|&#39;.*?&#39;)/g, '<span class="text-green-400">$1</span>')
-      .replace(/\b(\d+)\b/g, '<span class="text-orange-400">$1</span>')
-      .replace(/\b([a-zA-Z_][a-zA-Z0-9_]*)\(/g, '<span class="text-yellow-400">$1</span>(')
-      .replace(/\b(class|void)\s+([a-zA-Z_][a-zA-Z0-9_]*)/g, '$1 <span class="text-cyan-400 font-semibold">$2</span>');
+    const tokens = tokenizeLine(line);
+    return (
+      <span>
+        {tokens.map((token, tokenIndex) => (
+          <span 
+            key={`${lineIndex}-${tokenIndex}`} 
+            className={getClassForToken(token.type)}
+          >
+            {token.value}
+          </span>
+        ))}
+      </span>
+    );
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -87,9 +174,10 @@ const CodeEditor = ({
             {lines.map((line, index) => (
               <div 
                 key={index} 
-                className="min-h-[1.5rem]" 
-                dangerouslySetInnerHTML={{ __html: line ? highlightSyntax(line) : '&nbsp;' }} 
-              />
+                className="min-h-[1.5rem]"
+              >
+                {renderLine(line, index)}
+              </div>
             ))}
           </pre>
         </div>
