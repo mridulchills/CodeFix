@@ -90,7 +90,7 @@ const Index = () => {
           <TabsContent value="generate" className="space-y-4">
             <div className="space-y-2">
               <label htmlFor="prompt" className="block text-sm font-medium">
-                Describe the Python code you need:
+                Describe the code you need:
               </label>
               <Textarea
                 id="prompt"
@@ -218,7 +218,7 @@ print(result)`
               code={code}
               onChange={setCode}
               className="min-h-[300px] max-h-[500px] overflow-y-auto"
-              placeholder={activeTab === 'generate' ? "# Generated Python code will appear here..." : "# Paste Python code to fix here..."}
+              placeholder={activeTab === 'generate' ? "Generated code will appear here..." : "Paste Python code to fix here..."}
             />
           </Card>
         </div>
