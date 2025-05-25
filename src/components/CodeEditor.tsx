@@ -19,7 +19,7 @@ const CodeEditor = ({
   code, 
   onChange, 
   className, 
-  placeholder = "# Write your Python code here...", 
+  placeholder = "Write your code here...", 
   readOnly = false 
 }: CodeEditorProps) => {
   const [lines, setLines] = useState<string[]>([]);
